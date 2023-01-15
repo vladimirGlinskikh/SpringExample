@@ -1,4 +1,4 @@
-package kz.zhelezyaka.SpringExample.entityes;
+package kz.zhelezyaka.SpringExample.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
