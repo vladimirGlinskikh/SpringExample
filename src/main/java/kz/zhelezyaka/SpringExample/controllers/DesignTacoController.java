@@ -5,37 +5,30 @@ import kz.zhelezyaka.SpringExample.model.Ingredient;
 import kz.zhelezyaka.SpringExample.model.Ingredient.Type;
 import kz.zhelezyaka.SpringExample.model.Taco;
 import kz.zhelezyaka.SpringExample.model.TacoOrder;
+import kz.zhelezyaka.SpringExample.repository.IngredientRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
-
-import static kz.zhelezyaka.SpringExample.model.Ingredient.Type.*;
+import java.util.stream.StreamSupport;
 
 @Slf4j
 @Controller
 @RequestMapping("/design")
 @SessionAttributes("tacoOrder")
 public class DesignTacoController {
+    private final IngredientRepository ingredientRepository;
+
+    public DesignTacoController(IngredientRepository ingredientRepository) {
+        this.ingredientRepository = ingredientRepository;
+    }
 
     @ModelAttribute
     public void addIngredientsToModel(Model model) {
-        List<Ingredient> ingredients = Arrays.asList(
-                new Ingredient("FLTO", "Flour Tortilla", WRAP),
-                new Ingredient("COTO", "Corn Tortilla", WRAP),
-                new Ingredient("GRBF", "Ground Beef", PROTEIN),
-                new Ingredient("CARN", "Carnitas", PROTEIN),
-                new Ingredient("TMTO", "Diced Tomatoes", VEGGIES),
-                new Ingredient("LETC", "Lettuce", VEGGIES),
-                new Ingredient("CHED", "Cheddar", CHEESE),
-                new Ingredient("JACK", "Moterrey Jack", CHEESE),
-                new Ingredient("SLSA", "Salsa", SAUCE),
-                new Ingredient("SRCR", "Sour Cream", SAUCE));
+        Iterable<Ingredient> ingredients = ingredientRepository.findAll();
 
         Type[] types = Ingredient.Type.values();
         for (Type type : types) {
@@ -59,13 +52,6 @@ public class DesignTacoController {
         return "design";
     }
 
-    private Iterable<Ingredient> filterByType(List<Ingredient> ingredients, Type type) {
-        return ingredients
-                .stream()
-                .filter(x -> x.getType().equals(type))
-                .collect(Collectors.toList());
-    }
-
     @PostMapping
     public String processTaco(@Valid Taco taco,
                               Errors errors,
@@ -77,5 +63,11 @@ public class DesignTacoController {
         tacoOrder.addTaco(taco);
         log.info("Processing taco: {}", taco);
         return "redirect:/orders/current";
+    }
+
+    private Iterable<Ingredient> filterByType(Iterable<Ingredient> ingredients, Type type) {
+        return StreamSupport.stream(ingredients.spliterator(), false)
+                .filter(i -> i.getType().equals(type))
+                .collect(Collectors.toList());
     }
 }

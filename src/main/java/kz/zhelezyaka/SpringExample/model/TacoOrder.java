@@ -45,4 +45,12 @@ public class TacoOrder {
     public void addTaco(Taco taco) {
         this.tacos.add(taco);
     }
+
+    public void setPlacedAt(Date date) {
+
+    }
+
+    public Object getPlacedAt() {
+        return null;
+    }
 }
